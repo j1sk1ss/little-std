@@ -1,9 +1,6 @@
-# Mallocators
+# simple-std
 
-This repository is a collection of simple, self-contained memory allocators written in C.  
-The goal is to provide **easy-to-integrate**, **header-only**, and **user-space** memory allocators that require **no external dependencies**.
-
-You can drop any of them into your project and have basic `malloc`/`free` functionality without relying on the system heap — useful for embedded systems, custom runtime environments, or low-level projects.
+This repository is a collection of simple, self-contained memory allocators, structs and usefull stuff written in C. Also, this is a collection of some sort of my-most-used code in my projects. You can drop any of them into your project without (or with little) any additional modification.
 
 ---
 
@@ -68,7 +65,7 @@ A proper **buddy system allocator** using block sizes as powers of two.
 
 ---
 
-## Usage
+### Usage
 
 Each allocator is implemented in a **single `.h` file**.  
 To use one:
@@ -77,9 +74,9 @@ To use one:
 #include "balloc.h"
 
 int main() {
-    b_init();                     // initialize allocator
-    void* ptr = b_malloc(128);    // allocate memory
-    b_free(ptr);                  // free memory
+    b_init();
+    void* ptr = b_malloc(128);
+    b_free(ptr);
 }
 ```
 
@@ -87,3 +84,81 @@ Each allocator provides the following functions:
 - `..._init()` — initializes internal buffer and structures.
 - `..._malloc(size)` — allocates memory.
 - `..._free(ptr)` — deallocates memory.
+
+## Benchmark tools
+Collection of benchmark-related tools
+
+### Timer
+```c
+#include <timer.h>
+int main() {
+    ttimer_t optimer;
+    reset_time_timer(&optimer);
+    add_time_timer(MEASURE_TIME_US({
+        int a = 10 - 11;
+    }), &optimer);
+    fprintf(stdout, "time=%.2f µs", get_avg_timer_and_reset(&optimer));
+}
+```
+
+## Structs
+
+- map
+```c
+#include <map.h>
+int main() {
+    map_t m;
+    map_init(&m);
+    map_put(&m, 1, (void*)100);
+
+    int val;
+    map_get(&m, 1, (void**)&val);
+
+    map_iter_t it;
+    map_iter_init(&m, &it);
+    while (map_iter_next(&it, (void**)&val)) {
+
+    }
+
+    map_free(&m);
+}
+```
+
+- set (based on map)
+```c
+#include <set.h>
+int main() {
+    set_t s;
+    set_init(&s);
+    set_put(&s, (void*)1);
+    if (!set_has(&s, (void*)1)) return 1;
+
+    int val;
+    set_iter_t it;
+    set_iter_init(&s, &it);
+    while (set_iter_next(&it, (void**)&val)) {
+
+    }
+
+    set_free(&s);
+}
+```
+
+- list
+```c
+#include <list.h>
+int main() {
+    list_t l;
+    list_init(&l);
+
+    list_add(&l, (void*)100);
+    int val;
+    list_iter_t it;
+    list_iter_hinit(&l, &it);
+    while (list_iter_next(&it, (void**)&val)) {
+
+    }
+
+    list_free(&l);
+}
+```
